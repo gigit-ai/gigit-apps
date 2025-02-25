@@ -27,6 +27,18 @@ const MyComponent = () => (
 )
 ```
 
+##### For NextJS Pages Router, you may need to dynamically import the components.
+
+```jsx
+import dynamic from 'next/dynamic'
+const QAWidget = dynamic(
+    () => import('@gigit-ai/gigit-apps').then((module) => module.QAWidget),
+    {
+        ssr: false,
+    }
+)
+```
+
 #### Props
 
 | Prop         | Type   | Required | Description                                                                        |
