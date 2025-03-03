@@ -4,9 +4,61 @@ Gigit Apps is a collection of React components designed to enhance your e-commer
 
 ## Installation
 
+### NPM
+
+To install the package with authentication:
+
 ```sh
-npm install @gigit-ai/gigit-apps --//registry.npmjs.org/:_authToken=YOUR_ACCESS_TOKEN
+npm install @gigit-ai/gigit-apps --//registry.npmjs.org/:_authToken=YOUR_ACCESS_TOKEN ----legacy-peer-deps
 ```
+
+To avoid specifying the access token in every command, set it globally:
+
+```sh
+npm config set '//registry.npmjs.org/:_authToken' "YOUR_ACCESS_TOKEN"
+npm install @gigit-ai/gigit-apps --legacy-peer-deps
+```
+
+To update the package to the latest compatible version:
+
+```sh
+npm install @gigit-ai/gigit-apps --legacy-peer-deps
+```
+
+To install the latest available version, including major updates:
+
+```sh
+npm install @gigit-ai/gigit-apps@latest --legacy-peer-deps
+```
+
+### YARN
+
+To install the package with authentication:
+
+```bash
+yarn add @gigit-ai/gigit-apps --//registry.npmjs.org/:_authToken=YOUR_ACCESS_TOKEN
+```
+
+To avoid specifying the access token in every command, set it globally for `npm` (`yarn` will use the same config):
+
+```bash
+npm config set "//registry.npmjs.org/:_authToken" "YOUR_ACCESS_TOKEN"
+yarn add @gigit-ai/gigit-apps
+```
+
+To update the package to the latest compatible version:
+
+```bash
+yarn add @gigit-ai/gigit-apps
+```
+
+To install the latest available version, including major updates:
+
+```bash
+yarn add @gigit-ai/gigit-apps@latest
+```
+
+### CI/CD
 
 For using an NPM access token in a CI/CD workflow, refer to the official documentation:
 [Using private packages in a CI/CD workflow](https://docs.npmjs.com/using-private-packages-in-a-ci-cd-workflow).
