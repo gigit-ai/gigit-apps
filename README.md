@@ -79,7 +79,7 @@ const MyComponent = () => (
 )
 ```
 
-For NextJS and SSR, you may need to dynamically import the components:
+For NextJS and SSR, you may need to dynamically import the component:
 
 ```jsx
 import dynamic from 'next/dynamic'
@@ -114,6 +114,21 @@ const MyComponent = () => (
 )
 ```
 
+For NextJS and SSR, you may need to dynamically import the component:
+
+```jsx
+import dynamic from 'next/dynamic'
+const QAWidgetEntrypoint = dynamic(
+    () =>
+        import('@gigit-ai/gigit-apps').then(
+            (module) => module.QAWidgetEntrypoint
+        ),
+    {
+        ssr: false,
+    }
+)
+```
+
 #### Props
 
 | Prop         | Type   | Required | Description                                                                        |
@@ -137,6 +152,18 @@ const MyComponent = () => (
 )
 ```
 
+For NextJS and SSR, you may need to dynamically import the component:
+
+```jsx
+import dynamic from 'next/dynamic'
+const Highlights = dynamic(
+    () => import('@gigit-ai/gigit-apps').then((module) => module.Highlights),
+    {
+        ssr: false,
+    }
+)
+```
+
 #### Props
 
 | Prop         | Type   | Required | Description                                                                        |
@@ -155,6 +182,18 @@ A navigation menu that improves user experience.
 import { SmartMenu } from '@gigit-ai/gigit-apps'
 
 const MyComponent = () => <SmartMenu shop="my-shop.com" />
+```
+
+For NextJS and SSR, you may need to dynamically import the component:
+
+```jsx
+import dynamic from 'next/dynamic'
+const SmartMenu = dynamic(
+    () => import('@gigit-ai/gigit-apps').then((module) => module.SmartMenu),
+    {
+        ssr: false,
+    }
+)
 ```
 
 #### Props
