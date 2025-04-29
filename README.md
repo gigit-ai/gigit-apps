@@ -65,7 +65,7 @@ For using an NPM access token in a CI/CD workflow, refer to the official documen
 
 ## Components
 
-### 1. QAWidget
+### 1A. QAWidget
 
 A widget that enables chat with AI to answer common questions on your store.
 
@@ -79,7 +79,7 @@ const MyComponent = () => (
 )
 ```
 
-##### For NextJS Pages Router, you may need to dynamically import the components.
+For NextJS and SSR, you may need to dynamically import the components:
 
 ```jsx
 import dynamic from 'next/dynamic'
@@ -88,6 +88,29 @@ const QAWidget = dynamic(
     {
         ssr: false,
     }
+)
+```
+
+#### Props
+
+| Prop         | Type   | Required | Description                                                                        |
+| ------------ | ------ | -------- | ---------------------------------------------------------------------------------- |
+| shop         | string | ✅       | The domain of your store URL (e.g., `my-shop.com`).                                |
+| productTitle | string | Optional | The name of the product. Required if used on a product page.                       |
+| productId    | string | Optional | The id of the product. Required if used on a product page.                         |
+| test         | bool   | Optional | If set to `true`, interactions with this widget will not be included in analytics. |
+
+### 1B. QAWidgetEntrypoint
+
+A CTA that will scroll to the QA Widget when clicked.
+
+#### Usage
+
+```jsx
+import { QAWidgetEntrypoint } from '@gigit-ai/gigit-apps'
+
+const MyComponent = () => (
+    <QAWidgetEntrypoint shop="my-shop.com" productTitle="My Product" />
 )
 ```
 
@@ -140,6 +163,259 @@ const MyComponent = () => <SmartMenu shop="my-shop.com" />
 | ---- | ------ | -------- | ---------------------------------------------------------------------------------- |
 | shop | string | ✅       | The domain of your store URL (e.g., `my-shop.com`).                                |
 | test | bool   | Optional | If set to `true`, interactions with this widget will not be included in analytics. |
+
+## **Tracking Events in React & Next.js**
+
+The `trackEvent` function from `@gigit-ai/gigit-apps` enables event tracking. This guide explains **where and how to call `trackEvent`**, covering both **React.js** and **Next.js (Pages Router & App Router)**.
+
+---
+
+### **1. Tracking Page Views**
+
+#### **For React.js (Using React Router)**
+
+If you're using **React.js with React Router**, place `trackEvent` inside a separate `PageViewTracker` component and use `useLocation()` to detect route changes.
+
+##### **Step 1: Create a Page View Tracker Component**
+
+```tsx
+import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
+import { trackEvent } from '@gigit-ai/gigit-apps'
+
+export default function PageViewTracker() {
+    const location = useLocation()
+
+    useEffect(() => {
+        trackEvent('PAGE_VIEWED', { url: location.pathname })
+    }, [location])
+
+    return null
+}
+```
+
+##### **Step 2: Add It to Your Main App Component**
+
+```tsx
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import PageViewTracker from './PageViewTracker'
+import HomePage from './HomePage'
+import ProductPage from './ProductPage'
+
+export default function App() {
+    return (
+        <BrowserRouter>
+            <PageViewTracker />
+            <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/product/:id" element={<ProductPage />} />
+            </Routes>
+        </BrowserRouter>
+    )
+}
+```
+
+---
+
+#### **For Next.js**
+
+##### **Using Pages Router (`pages/` directory)**
+
+In Next.js (Pages Router), track navigation changes using `useRouter` inside `_app.tsx`:
+
+```tsx
+import { useEffect } from 'react'
+import { useRouter } from 'next/router'
+import { trackEvent } from '@gigit-ai/gigit-apps'
+
+export default function App({ Component, pageProps }) {
+    const router = useRouter()
+
+    useEffect(() => {
+        const handleRouteChange = () => {
+            trackEvent('PAGE_VIEWED')
+        }
+
+        router.events.on('routeChangeComplete', handleRouteChange)
+        return () => {
+            router.events.off('routeChangeComplete', handleRouteChange)
+        }
+    }, [router])
+
+    return <Component {...pageProps} />
+}
+```
+
+---
+
+##### **Using App Router (`app/` directory)**
+
+For the **Next.js App Router**, follow the **official Next.js guide** by composing `usePathname` and `useSearchParams`.
+
+**Step 1: Create a `NavigationEvents` Component**
+
+```tsx
+'use client'
+
+import { useEffect } from 'react'
+import { usePathname, useSearchParams } from 'next/navigation'
+import { trackEvent } from '@gigit-ai/gigit-apps'
+
+export function NavigationEvents() {
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
+
+    useEffect(() => {
+        trackEvent('PAGE_VIEWED')
+    }, [pathname, searchParams])
+
+    return null
+}
+```
+
+**Step 2: Include It in `layout.tsx`**
+
+```tsx
+import { Suspense } from 'react'
+import { NavigationEvents } from './components/NavigationEvents'
+
+export default function RootLayout({ children }) {
+    return (
+        <html lang="en">
+            <body>
+                {children}
+
+                <Suspense fallback={null}>
+                    <NavigationEvents />
+                </Suspense>
+            </body>
+        </html>
+    )
+}
+```
+
+### **2. Tracking Add to Cart Events**
+
+#### **Option 1: Button Click (For JavaScript-Based Cart Handling)**
+
+```tsx
+'use client'
+
+import { trackEvent } from '@gigit-ai/gigit-apps'
+
+export default function AddToCartButton() {
+    const handleAddToCart = () => {
+        trackEvent('ADD_TO_CART', {
+            productId: '123456789',
+            productTitle: 'Example Product',
+            quantity: 2,
+            totalPrice: 39.98,
+            currency: 'USD',
+        })
+    }
+
+    return <button onClick={handleAddToCart}>Add to Cart</button>
+}
+```
+
+---
+
+#### **Option 2: Tracking Form Submission (For Form-Based Carts)**
+
+If your cart system **relies on form submissions**, attach `trackEvent` to `onSubmit`:
+
+```tsx
+'use client'
+
+import { trackEvent } from '@gigit-ai/gigit-apps'
+
+export default function AddToCartForm() {
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault()
+
+        const formData = new FormData(event.currentTarget)
+        const quantity = Number(formData.get('quantity')) || 1
+        const productId = formData.get('productId') as string
+        const productTitle = formData.get('productTitle') as string
+        const totalPrice = quantity * 19.99 // Example price calculation
+
+        trackEvent('ADD_TO_CART', {
+            productId,
+            productTitle,
+            quantity,
+            totalPrice,
+            currency: 'USD',
+        })
+
+        event.currentTarget.submit()
+    }
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <input type="hidden" name="productId" value="123456789" />
+            <input type="hidden" name="productTitle" value="Example Product" />
+            <input type="number" name="quantity" min="1" defaultValue="1" />
+            <button type="submit">Add to Cart</button>
+        </form>
+    )
+}
+```
+
+| **Prop**       | **Type** | **Required?** | **Description**                                           |
+| -------------- | -------- | ------------- | --------------------------------------------------------- |
+| `productId`    | `string` | ✅ Yes        | The unique identifier for the product (e.g., variant ID). |
+| `productTitle` | `string` | ✅ Yes        | The name of the product.                                  |
+| `quantity`     | `number` | ✅ Yes        | The number of items added to the cart.                    |
+| `totalPrice`   | `number` | ✅ Yes        | The total cost of the items added (price × quantity).     |
+| `currency`     | `string` | ✅ Yes        | The currency code (e.g., `"USD"`).                        |
+| `custom`       | `any`    | Optional      | Any additional custom data to track with this event.      |
+
+---
+
+### **3. Tracking Checkout Completion**
+
+Call `trackEvent` **after checkout is completed**, usually on the **order confirmation page**. Alternatively, instead of calling this function on the checkout success page, you can also call it when your checkout API returns a successful response.
+
+```tsx
+'use client'
+
+import { useEffect } from 'react'
+import { trackEvent } from '@gigit-ai/gigit-apps'
+
+export default function CheckoutSuccessPage() {
+    useEffect(() => {
+        trackEvent('CHECKOUT_COMPLETED', {
+            currencyCode: 'USD',
+            totalPrice: 59.99,
+            email: 'user@example.com',
+            phone: '+1234567890',
+            lineItems: [
+                {
+                    productId: 'abc1235',
+                    productTitle: 'Example Product',
+                    quantity: 2,
+                    price: 29.99,
+                },
+            ],
+        })
+    }, [])
+
+    return <h1>Thank you for your purchase!</h1>
+}
+```
+
+| **Prop**                   | **Type** | **Required?** | **Description**                                      |
+| -------------------------- | -------- | ------------- | ---------------------------------------------------- |
+| `currencyCode`             | `string` | ✅ Yes        | The currency used for the checkout (e.g., `"USD"`).  |
+| `totalPrice`               | `number` | ✅ Yes        | The total amount for the checkout.                   |
+| `lineItems`                | `array`  | ✅ Yes        | A list of items included in the checkout.            |
+| `lineItems[].productId`    | `string` | ✅ Yes        | The product ID for each item in the order.           |
+| `lineItems[].productTitle` | `string` | ✅ Yes        | The name of the product.                             |
+| `lineItems[].quantity`     | `number` | ✅ Yes        | The quantity purchased.                              |
+| `lineItems[].price`        | `number` | Optional      | The price of the product.                            |
+| `email`                    | `string` | Optional      | The email of the user who completed the checkout.    |
+| `phone`                    | `string` | Optional      | The phone number of the user.                        |
+| `custom`                   | `any`    | Optional      | Any additional custom data to track with this event. |
 
 ## License
 
