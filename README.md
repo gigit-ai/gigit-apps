@@ -93,12 +93,13 @@ const QAWidget = dynamic(
 
 #### Props
 
-| Prop         | Type   | Required | Description                                                                        |
-| ------------ | ------ | -------- | ---------------------------------------------------------------------------------- |
-| shop         | string | ✅       | The domain of your store URL (e.g., `my-shop.com`).                                |
-| productTitle | string | Optional | The name of the product. Required if used on a product page.                       |
-| productId    | string | Optional | The id of the product. Required if used on a product page.                         |
-| test         | bool   | Optional | If set to `true`, interactions with this widget will not be included in analytics. |
+| Prop                | Type   | Required | Description                                                                        |
+| ------------------- | ------ | -------- | ---------------------------------------------------------------------------------- |
+| shop                | string | ✅       | The domain of your store URL (e.g., `my-shop.com`).                                |
+| productTitle        | string | Optional | The name of the product. Required if used on a product page.                       |
+| productId           | string | Optional | The id of the product. Required if used on a product page.                         |
+| productSpecificChat | bool   | Optional | If set to `true`, each product will have its own chat channel.                     |
+| test                | bool   | Optional | If set to `true`, interactions with this widget will not be included in analytics. |
 
 ### 1B. QAWidgetEntrypoint
 
@@ -298,14 +299,17 @@ For the **Next.js App Router**, follow the **official Next.js guide** by composi
 
 import { useEffect } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { trackEvent } from '@gigit-ai/gigit-apps'
 
 export function NavigationEvents() {
     const pathname = usePathname()
     const searchParams = useSearchParams()
 
     useEffect(() => {
-        trackEvent('PAGE_VIEWED')
+        const track = async () => {
+            const { trackEvent } = await import('@gigit-ai/gigit-apps')
+            trackEvent('PAGE_VIEWED')
+        }
+        track()
     }, [pathname, searchParams])
 
     return null
@@ -340,10 +344,10 @@ export default function RootLayout({ children }) {
 ```tsx
 'use client'
 
-import { trackEvent } from '@gigit-ai/gigit-apps'
-
 export default function AddToCartButton() {
-    const handleAddToCart = () => {
+    const handleAddToCart = async () => {
+        const { trackEvent } = await import('@gigit-ai/gigit-apps')
+
         trackEvent('ADD_TO_CART', {
             productId: '123456789',
             productTitle: 'Example Product',
@@ -366,10 +370,8 @@ If your cart system **relies on form submissions**, attach `trackEvent` to `onSu
 ```tsx
 'use client'
 
-import { trackEvent } from '@gigit-ai/gigit-apps'
-
 export default function AddToCartForm() {
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
 
         const formData = new FormData(event.currentTarget)
@@ -378,6 +380,7 @@ export default function AddToCartForm() {
         const productTitle = formData.get('productTitle') as string
         const totalPrice = quantity * 19.99 // Example price calculation
 
+        const { trackEvent } = await import('@gigit-ai/gigit-apps')
         trackEvent('ADD_TO_CART', {
             productId,
             productTitle,
@@ -419,32 +422,44 @@ Call `trackEvent` **after checkout is completed**, usually on the **order confir
 'use client'
 
 import { useEffect } from 'react'
-import { trackEvent } from '@gigit-ai/gigit-apps'
 
 export default function CheckoutSuccessPage() {
-    useEffect(() => {
-        trackEvent('CHECKOUT_COMPLETED', {
-            currencyCode: 'USD',
-            totalPrice: 59.99,
-            email: 'user@example.com',
-            phone: '+1234567890',
-            lineItems: [
-                {
-                    productId: 'abc1235',
-                    productTitle: 'Example Product',
-                    quantity: 2,
-                    price: 29.99,
-                },
-            ],
-        })
-    }, [])
+  useEffect(() => {
+    const sendTracking = async () => {
+      const { trackEvent } = await import('@gigit-ai/gigit-apps')
+      trackEvent('CHECKOUT_COMPLETED', {
+        currencyCode: 'USD',
+        totalPrice: 59.99,
+        email: 'user@example.com',
+        phone: '+1234567890',
+        order: {
+          id: 'order123',
+          customerId: 'customer-12345',
+        },
+        lineItems: [
+          {
+            productId: 'abc1235',
+            productTitle: 'Example Product',
+            quantity: 2,
+            price: 29.99,
+          },
+        ],
+      })
+    }
 
-    return <h1>Thank you for your purchase!</h1>
+    sendTracking()
+  }, [])
+
+  return <h1>Thank you for your purchase!</h1>
+}
+
 }
 ```
 
 | **Prop**                   | **Type** | **Required?** | **Description**                                      |
 | -------------------------- | -------- | ------------- | ---------------------------------------------------- |
+| `order.id`                 | `string` | ✅ Yes        | The id of the order                                  |
+| `order.customerId`         | `string` | Optional      | The id of the customer                               |
 | `currencyCode`             | `string` | ✅ Yes        | The currency used for the checkout (e.g., `"USD"`).  |
 | `totalPrice`               | `number` | ✅ Yes        | The total amount for the checkout.                   |
 | `lineItems`                | `array`  | ✅ Yes        | A list of items included in the checkout.            |
