@@ -96,10 +96,11 @@ const QAWidget = dynamic(
 | Prop                | Type   | Required | Description                                                                        |
 | ------------------- | ------ | -------- | ---------------------------------------------------------------------------------- |
 | shop                | string | ✅       | The domain of your store URL (e.g., `my-shop.com`).                                |
-| productTitle        | string | Optional | The name of the product. Required if used on a product page.                       |
-| productId           | string | Optional | The id of the product. Required if used on a product page.                         |
+| productTitle        | string | ✅       | The name of the product. Required if used on a product page.                       |
+| productId           | string | ✅       | The id of the product. Required if used on a product page.                         |
 | productSpecificChat | bool   | Optional | If set to `true`, each product will have its own chat channel.                     |
 | test                | bool   | Optional | If set to `true`, interactions with this widget will not be included in analytics. |
+| locale              | string | Optional | The language of the QA Widget. For example, `en` or `ar`.                          |
 
 ### 1B. QAWidgetEntrypoint
 
@@ -135,8 +136,8 @@ const QAWidgetEntrypoint = dynamic(
 | Prop         | Type   | Required | Description                                                                        |
 | ------------ | ------ | -------- | ---------------------------------------------------------------------------------- |
 | shop         | string | ✅       | The domain of your store URL (e.g., `my-shop.com`).                                |
-| productTitle | string | Optional | The name of the product. Required if used on a product page.                       |
-| productId    | string | Optional | The id of the product. Required if used on a product page.                         |
+| productTitle | string | ✅       | The name of the product. Required if used on a product page.                       |
+| productId    | string | ✅       | The id of the product. Required if used on a product page.                         |
 | test         | bool   | Optional | If set to `true`, interactions with this widget will not be included in analytics. |
 
 ### 2. Highlights
