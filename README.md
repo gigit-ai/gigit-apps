@@ -1,6 +1,6 @@
 # Gigit Apps
 
-Gigit Apps is a collection of React components designed to enhance your e-commerce store experience. The package includes **QAWidget**, **Highlights**, **SmartMenu**, and **ShopConcierge** components, each requiring minimal configuration to integrate seamlessly with your store.
+Gigit Apps is a collection of React components designed to enhance your e-commerce store experience. The package includes **QAWidget**, **Highlights**, **SmartMenu**, **ShopConcierge**, and **StorefrontAgent** components, each requiring minimal configuration to integrate seamlessly with your store.
 
 ## Installation
 
@@ -256,6 +256,43 @@ const ShopConcierge = dynamic(
 | storeType     | string | Optional | If the value is `playground`, this store will be a playground store.                                                      |
 | storeIndustry | string | Optional | Provide industry context for playground stores. Required if `storeType` is `playground`. Possible values: `skincare`.     |
 
+### 5. StorefrontAgent
+
+A dynamic content widget that evaluates visitor context (device, visitor type, UTM parameters) and renders personalized content based on configured agent behaviors. Supports text, image, banner, and custom HTML content types.
+
+#### Usage
+
+```jsx
+import { StorefrontAgent } from '@gigit-ai/gigit-apps'
+
+const MyComponent = () => (
+    <StorefrontAgent agentId="your-agent-id" shop="my-shop.com" pageType="product" productId="123" productTitle="My Product" />
+)
+```
+
+For NextJS and SSR, you may need to dynamically import the component:
+
+```jsx
+import dynamic from 'next/dynamic'
+const StorefrontAgent = dynamic(
+    () => import('@gigit-ai/gigit-apps').then((module) => module.StorefrontAgent),
+    {
+        ssr: false,
+    }
+)
+```
+
+#### Props
+
+| Prop         | Type   | Required | Description                                                                 |
+| ------------ | ------ | -------- | --------------------------------------------------------------------------- |
+| agentId      | string | ✅       | The Agent ID from the Gigit Dashboard (Configuration > Storefront Agents).  |
+| shop         | string | ✅       | The domain of your store URL (e.g., `my-shop.com`).                         |
+| pageType     | string | Optional | Page type: `index`, `product` or `collection`.                              |
+| productId    | string | Optional | The id of the product. Used on product pages for context.                   |
+| productTitle | string | Optional | The name of the product. Used on product pages for context.                 |
+| preview      | bool   | Optional | Enables preview mode (skips tracking).                                      |
+
 ## Storefront Widgets (Web Components)
 
 For non-React storefronts (Shopify Liquid, plain HTML, or any other platform), you can use Gigit widgets as web components.
@@ -419,6 +456,40 @@ On Shopify, add this script to `layout/theme.liquid` or any other Liquid file th
 | `locale`        | Optional  | string | The language of the Shop Concierge. For example, `en` or `ar`.                                                            |
 | `storetype`     | Optional  | string | If the value is `playground`, this store will be a playground store.                                                      |
 | `storeindustry` | Optional  | string | Provide industry context for playground stores. Required if `storetype` is `playground`. Possible values: `skincare`.     |
+
+#### Gigit Storefront Agent
+
+```html
+<gigit-storefront-agent
+    shop="shop-domain"
+    agentid="your-agent-id"
+    pagetype="product"
+    productid="123"
+    producttitle="Product Title"
+></gigit-storefront-agent>
+```
+
+**Shopify Liquid:**
+
+```html
+<gigit-storefront-agent
+    shop="{{ shop.permanent_domain }}"
+    agentid="your-agent-id"
+    pagetype="{{ request.page_type }}"
+    {% if request.page_type == 'product' %}
+        productid="{{ product.id }}"
+        producttitle="{{ product.title | escape }}"
+    {% endif %}
+></gigit-storefront-agent>
+```
+
+| Attribute      | Required? | Type   | Description                                                                |
+| -------------- | --------- | ------ | -------------------------------------------------------------------------- |
+| `shop`         | ✅ Yes    | string | The domain of your store.                                                  |
+| `agentid`      | ✅ Yes    | string | The Agent ID from the Gigit Dashboard (Configuration > Storefront Agents). |
+| `pagetype`     | Optional  | string | Page type: `index`, `product` or `collection`.                             |
+| `productid`    | Optional  | string | The id of the product. Used on product pages for context.                  |
+| `producttitle` | Optional  | string | The name of the product. Used on product pages for context.                |
 
 ### 3. Data Tracking for Analytics (Non-React)
 
