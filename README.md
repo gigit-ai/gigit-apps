@@ -1,6 +1,6 @@
 # Gigit Apps
 
-Gigit Apps is a collection of React components designed to enhance your e-commerce store experience. The package includes **QAWidget**, **Highlights**, **SmartMenu**, and **ShopConcierge** components, each requiring minimal configuration to integrate seamlessly with your store.
+Gigit Apps is a collection of React components designed to enhance your e-commerce store experience. The package includes **QAWidget**, **Highlights**, **SmartMenu**, **ShopConcierge**, and **StorefrontAgent** components, each requiring minimal configuration to integrate seamlessly with your store.
 
 ## Installation
 
@@ -256,228 +256,42 @@ const ShopConcierge = dynamic(
 | storeType     | string | Optional | If the value is `playground`, this store will be a playground store.                                                      |
 | storeIndustry | string | Optional | Provide industry context for playground stores. Required if `storeType` is `playground`. Possible values: `skincare`.     |
 
-## Storefront Widgets (Web Components)
+### 5. StorefrontAgent
 
-For non-React storefronts (Shopify Liquid, plain HTML, or any other platform), you can use Gigit widgets as web components.
+A dynamic content widget that evaluates visitor context (device, visitor type, UTM parameters) and renders personalized content based on configured agent behaviors. Supports text, image, banner, and custom HTML content types.
 
-### 1. Include the JavaScript Component File
+#### Usage
 
-Add the following `<script>` tag to the HTML page where you want to use the components. Place it at the bottom of the `<body>` element for optimal performance.
+```jsx
+import { StorefrontAgent } from '@gigit-ai/gigit-apps'
 
-```html
-<script src="provided-link-to-js-file" type="module" async></script>
+const MyComponent = () => (
+    <StorefrontAgent agentId="your-agent-id" shop="my-shop.com" pageType="product" productId="123" productTitle="My Product" />
+)
 ```
 
-#### For Shopify Stores
+For NextJS and SSR, you may need to dynamically import the component:
 
-On Shopify, add this script to `layout/theme.liquid` or any other Liquid file that wraps your store.
-
-### 2. Component Usage
-
-#### Gigit QA Widget
-
-```html
-<gigit-qa-widget
-    shop="shop-domain"
-    producttitle="Product Title"
-    productid="123"
-    productdescription="Product description here"
-    test="true"
-></gigit-qa-widget>
-```
-
-**Shopify Liquid:**
-
-```html
-<gigit-qa-widget
-    shop="{{ shop.permanent_domain }}"
-    producttitle="{{ product.title | escape }}"
-    productid="{{ product.id }}"
-    productdescription="{{ product.description | escape }}"
-    test="true"
-></gigit-qa-widget>
-```
-
-| Attribute            | Required? | Type   | Description                                                                                                               |
-| -------------------- | --------- | ------ | ------------------------------------------------------------------------------------------------------------------------- |
-| `shop`               | ✅ Yes    | string | The domain of your store.                                                                                                 |
-| `producttitle`       | Optional  | string | The name of the product.                                                                                                  |
-| `productid`          | Optional  | string | Enables product-specific chat if provided.                                                                                |
-| `productdescription` | Optional  | string | The description of the product. Required on product pages.                                                                |
-| `productspecific`    | Optional  | string | If set to `false` (string), disables product-specific chat channels. Default is enabled when omitted.                     |
-| `test`               | Optional  | string | If set to `true` (string), interactions will not be logged.                                                               |
-| `locale`             | Optional  | string | The language of the QA Widget. For example, `en` or `ar`.                                                                 |
-| `storetype`          | Optional  | string | If the value is `playground`, this store will be a playground store.                                                      |
-| `storeindustry`      | Optional  | string | Provide industry context for playground stores. Required if `storetype` is `playground`. Possible values: `skincare`.     |
-
-#### Gigit QA Widget Entrypoint
-
-```html
-<gigit-qa-widget-entrypoint
-    shop="shop-domain"
-    producttitle="Product Title"
-    productid="123"
-    test="true"
-></gigit-qa-widget-entrypoint>
-```
-
-**Shopify Liquid:**
-
-```html
-<gigit-qa-widget-entrypoint
-    shop="{{ shop.permanent_domain }}"
-    producttitle="{{ product.title | escape }}"
-    productid="{{ product.id }}"
-    test="true"
-></gigit-qa-widget-entrypoint>
-```
-
-| Attribute            | Required? | Type   | Description                                                                                                               |
-| -------------------- | --------- | ------ | ------------------------------------------------------------------------------------------------------------------------- |
-| `shop`               | ✅ Yes    | string | The domain of your store.                                                                                                 |
-| `producttitle`       | Optional  | string | The name of the product. Required on product pages.                                                                       |
-| `productid`          | Optional  | string | Enables product-specific chat if provided. Required on product pages.                                                     |
-| `productdescription` | Optional  | string | The description of the product. Required on product pages.                                                                |
-| `test`               | Optional  | string | If set to `true` (string), interactions will not be logged.                                                               |
-| `locale`             | Optional  | string | The language of the QA Widget Entrypoint. For example, `en` or `ar`.                                                      |
-| `storetype`          | Optional  | string | If the value is `playground`, this store will be a playground store.                                                      |
-| `storeindustry`      | Optional  | string | Provide industry context for playground stores. Required if `storetype` is `playground`. Possible values: `skincare`.     |
-
-#### Gigit Highlights
-
-```html
-<gigit-highlights
-    shop="shop-domain"
-    producttitle="Product Title"
-    productdescription="Product description here"
-    preview="true"
-></gigit-highlights>
-```
-
-**Shopify Liquid:**
-
-```html
-<gigit-highlights
-    shop="{{ shop.permanent_domain }}"
-    producttitle="{{ product.title | escape }}"
-    productdescription="{{ product.description | escape }}"
-    preview="true"
-></gigit-highlights>
-```
-
-| Attribute            | Required? | Type   | Description                                                                                                               |
-| -------------------- | --------- | ------ | ------------------------------------------------------------------------------------------------------------------------- |
-| `shop`               | ✅ Yes    | string | The domain of your store.                                                                                                 |
-| `producttitle`       | ✅ Yes    | string | The name of the product.                                                                                                  |
-| `productdescription` | ✅ Yes    | string | The description of the product.                                                                                           |
-| `preview`            | Optional  | string | Enables design preview mode.                                                                                              |
-| `locale`             | Optional  | string | The language of the Highlights. For example, `en` or `ar`.                                                                |
-| `storetype`          | Optional  | string | If the value is `playground`, this store will be a playground store.                                                      |
-| `storeindustry`      | Optional  | string | Provide industry context for playground stores. Required if `storetype` is `playground`. Possible values: `skincare`.     |
-
-#### Gigit Smart Menu
-
-```html
-<gigit-smart-menu shop="shop-domain"></gigit-smart-menu>
-```
-
-**Shopify Liquid:**
-
-```html
-<gigit-smart-menu shop="{{ shop.permanent_domain }}"></gigit-smart-menu>
-```
-
-| Attribute       | Required? | Type   | Description                                                                                                               |
-| --------------- | --------- | ------ | ------------------------------------------------------------------------------------------------------------------------- |
-| `shop`          | ✅ Yes    | string | The domain of your store.                                                                                                 |
-| `pageType`      | Optional  | string | Page type: `index`, `product` or `collection`.                                                                            |
-| `locale`        | Optional  | string | The language of the SmartMenu. For example, `en` or `ar`.                                                                 |
-| `test`          | Optional  | string | If set to `true` (string), interactions will not be logged.                                                               |
-| `storetype`     | Optional  | string | If the value is `playground`, this store will be a playground store.                                                      |
-| `storeindustry` | Optional  | string | Provide industry context for playground stores. Required if `storetype` is `playground`. Possible values: `skincare`.     |
-
-#### Gigit Shop Concierge
-
-```html
-<gigit-shop-concierge shop="shop-domain" test="true"></gigit-shop-concierge>
-```
-
-**Shopify Liquid:**
-
-```html
-<gigit-shop-concierge
-    shop="{{ shop.permanent_domain }}"
-    test="true"
-></gigit-shop-concierge>
-```
-
-| Attribute       | Required? | Type   | Description                                                                                                               |
-| --------------- | --------- | ------ | ------------------------------------------------------------------------------------------------------------------------- |
-| `shop`          | ✅ Yes    | string | The domain of your store.                                                                                                 |
-| `test`          | Optional  | string | If set to `true` (string), interactions will not be logged.                                                               |
-| `pageType`      | Optional  | string | Page type: `index`, `product` or `collection`.                                                                            |
-| `locale`        | Optional  | string | The language of the Shop Concierge. For example, `en` or `ar`.                                                            |
-| `storetype`     | Optional  | string | If the value is `playground`, this store will be a playground store.                                                      |
-| `storeindustry` | Optional  | string | Provide industry context for playground stores. Required if `storetype` is `playground`. Possible values: `skincare`.     |
-
-### 3. Data Tracking for Analytics (Non-React)
-
-`GigitApps` is a global object that provides tracking functionality. The developer must manually call `GigitApps.trackEvent` when relevant user actions occur.
-
-#### ADD_TO_CART Event
-
-```html
-<script>
-    function addToCart(productId, title, quantity, price, currency) {
-        window.GigitApps.trackEvent('ADD_TO_CART', {
-            productId: productId,
-            productTitle: title,
-            quantity: quantity,
-            totalPrice: price,
-            currency: currency,
-        })
+```jsx
+import dynamic from 'next/dynamic'
+const StorefrontAgent = dynamic(
+    () => import('@gigit-ai/gigit-apps').then((module) => module.StorefrontAgent),
+    {
+        ssr: false,
     }
-</script>
+)
 ```
 
-#### CHECKOUT_COMPLETED Event
+#### Props
 
-```html
-<script>
-    function onCheckoutSuccess(orderData) {
-        window.GigitApps.trackEvent('CHECKOUT_COMPLETED', {
-            currencyCode: orderData.currency,
-            totalPrice: orderData.totalPrice,
-            email: orderData.customerEmail,
-            phone: orderData.customerPhone,
-            order: {
-                id: orderData.id,
-                customerId: orderData.customerId,
-            },
-            lineItems: orderData.items.map((item) => ({
-                productId: item.id,
-                productTitle: item.title,
-                quantity: item.quantity,
-                price: item.price,
-            })),
-        })
-    }
-</script>
-```
-
-#### Ensuring GigitApps.trackEvent is Available
-
-Since the script loads asynchronously, check if `trackEvent` is available before calling it:
-
-```js
-if (window.GigitApps?.trackEvent) {
-    window.GigitApps.trackEvent('ADD_TO_CART', { ... })
-} else {
-    console.warn('GigitApps.trackEvent is not available yet.')
-}
-```
-
----
+| Prop         | Type   | Required | Description                                                                 |
+| ------------ | ------ | -------- | --------------------------------------------------------------------------- |
+| agentId      | string | ✅       | The Agent ID from the Gigit Dashboard (Configuration > Storefront Agents).  |
+| shop         | string | ✅       | The domain of your store URL (e.g., `my-shop.com`).                         |
+| pageType     | string | Optional | Page type: `index`, `product` or `collection`.                              |
+| productId    | string | Optional | The id of the product. Used on product pages for context.                   |
+| productTitle | string | Optional | The name of the product. Used on product pages for context.                 |
+| preview      | bool   | Optional | Enables preview mode (skips tracking).                                      |
 
 ## **Tracking Events in React & Next.js**
 
